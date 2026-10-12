@@ -1,1 +1,4 @@
 project.manifest = manifest.xml
+# tylko kod i zasoby Łyżew – bez podkatalogu rolki/ (domyślnie kompilator bierze wszystkie *.mc)
+base.sourcePath = source
+base.resourcePath = resources

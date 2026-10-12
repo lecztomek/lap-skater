@@ -109,23 +109,21 @@ class RolkiView extends WatchUi.View {
         var max = val(info != null ? info.maxSpeed : null, 0.0) * 3.6;
 
         drawGpsDot(dc, cx, (h * 0.07).toNumber());
-        row(dc, w * 0.30, w * 0.70, h * 0.20, "HR", hr != null ? hr.toString() : "--", Graphics.COLOR_RED,
-            "kcal", cal.toString(), Graphics.COLOR_ORANGE);
-        row(dc, w * 0.30, w * 0.70, h * 0.45, "śr km/h", avg.format("%.1f"), Graphics.COLOR_WHITE,
-            "maks", max.format("%.1f"), Graphics.COLOR_WHITE);
+        cell(dc, w * 0.30, h * 0.20, "HR", hr != null ? hr.toString() : "--", Graphics.COLOR_RED);
+        cell(dc, w * 0.70, h * 0.20, "kcal", cal.toString(), Graphics.COLOR_ORANGE);
+        cell(dc, w * 0.30, h * 0.45, "śr km/h", avg.format("%.1f"), Graphics.COLOR_WHITE);
+        cell(dc, w * 0.70, h * 0.45, "maks", max.format("%.1f"), Graphics.COLOR_WHITE);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, h * 0.72, Graphics.FONT_SMALL, "km " + (_s.autoLap.laps + 1) + ": "
             + (_s.autoLap.lapDistance(_s.distance()) / 1000.0).format("%.2f"), Graphics.TEXT_JUSTIFY_CENTER);
     }
 
-    private function row(dc as Dc, x1, x2, y, l1 as String, v1 as String, c1, l2 as String, v2 as String, c2) as Void {
+    // etykieta i wartość jedna pod drugą
+    private function cell(dc as Dc, x, y, label as String, value as String, color) as Void {
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(x1, y, Graphics.FONT_XTINY, l1, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x2, y, Graphics.FONT_XTINY, l2, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.setColor(c1, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(x1, y + 18, Graphics.FONT_MEDIUM, v1, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.setColor(c2, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(x2, y + 18, Graphics.FONT_MEDIUM, v2, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x, y, Graphics.FONT_XTINY, label, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(x, y + 18, Graphics.FONT_MEDIUM, value, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     private function val(v, def) {
