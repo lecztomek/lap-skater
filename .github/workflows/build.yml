@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -58,6 +58,12 @@ jobs:
           # Opcjonalnie: hash przeczytanej umowy SDK (zmienna repozytorium). Bez niej akceptowana jest bieżąca.
           AGREEMENT_HASH: ${{ vars.GARMIN_AGREEMENT_HASH }}
         run: |
+          # wklejanie z telefonu potrafi dodać spacje / nowe linie
+          GARMIN_USERNAME="$(printf '%s' "$GARMIN_USERNAME" | tr -d '\r\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          GARMIN_PASSWORD="$(printf '%s' "$GARMIN_PASSWORD" | tr -d '\r\n')"
+          export GARMIN_USERNAME GARMIN_PASSWORD
+          case "$GARMIN_USERNAME" in *@*) at=tak ;; *) at=nie ;; esac
+          echo "Login: ${#GARMIN_USERNAME} znaków, zawiera @: $at"
           connect-iq-sdk-manager agreement view
           if [ -n "$AGREEMENT_HASH" ]; then
             connect-iq-sdk-manager agreement accept --agreement-hash="$AGREEMENT_HASH"
