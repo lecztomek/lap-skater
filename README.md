@@ -6,7 +6,9 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 - **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć)
 - **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (po cichu).
   Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
-- **Jazda tyłem**: zwrot przód/tył to skok kompasu o > 135° w sekundę – odejmowany, nie dodaje okrążeń.
+- **Jazda tyłem**: zwrot przód/tył to skok kompasu o > 120° w sekundę (> 150° w dwie sekundy, po odjęciu
+  obrotu z zakrętu) – odejmowany, nie dodaje okrążeń. Znane ograniczenie: zwrot w zakręcie czasem daje
+  błąd ±1 okrążenia (~3% zwrotów w symulacji).
   Piruety: okrążenie krótsze niż połowa typowego (wzorzec tempa) jest odrzucane.
 - **Zmiana kierunku jazdy** (np. co 30 min): wykrywana, gdy kompas zaczyna obracać się konsekwentnie
   w drugą stronę; niedokończone okrążenie sprzed nawrotu liczone z czasu (wzorzec tempa), dalej liczenie

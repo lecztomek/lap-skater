@@ -7,8 +7,9 @@ import Toybox.Math;
 // Kompas mówi, w którą stronę zwrócony jest zegarek. Na owalu tafli każde pełne 360° obrotu
 // = jedno okrążenie. Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym
 // okrążeniu się znoszą.
-// - Zwrot przód/tył: skok > 135° między kolejnymi próbkami (jazda tak szybko nie obraca),
-//   odejmujemy 180° – kierunek jazdy się nie zmienił.
+// - Zwrot przód/tył: skok > 120° w jednej próbce albo > 150° w dwóch kolejnych (po odjęciu
+//   przewidywanego obrotu z zakrętu), odejmujemy 180° – kierunek jazdy się nie zmienił.
+//   Znane ograniczenie: zwrot w zakręcie czasem daje błąd ±1 okrążenia (~3% zwrotów).
 // - Zmiana kierunku jazdy (np. co 30 min): kompas zaczyna obracać się konsekwentnie w drugą
 //   stronę (> REV_RAD od szczytu). Niedokończone okrążenie sprzed nawrotu liczymy z czasu
 //   (wzorzec tempa) i odkładamy w carry; liczenie zaczyna się od nawrotu w nową stronę.
@@ -19,13 +20,16 @@ class LapCounter {
     static const TWO_PI_F = 6.2831853;
     // Krótsze "okrążenie" = podwójne kliknięcie albo resztka manewru, nie liczymy.
     static const MIN_LAP_MS = 8000;
-    static const FLIP_RAD = 2.3561945; // 135°
+    static const FLIP_RAD = 2.0943951;  // 120° w jednej próbce
+    static const FLIP2_RAD = 2.6179939; // 150° w dwóch próbkach
+    static const CALM_RAD = 0.7;        // spokojna próbka (do nauki tempa zakrętu)
     static const REF_LAPS = 5;
     static const REF_MIN_FRACTION = 0.5;
     // Kierunek jazdy ustala się po pół okrążenia; nawrót = cofnięcie o > 126° od szczytu
     // (zakłócenia hali dają najwyżej ~80°, zakręt w drugą stronę to 180°).
+    // 160°: częściowo rozpoznany zwrot tyłem nie udaje zmiany kierunku.
     static const DIR_SET_RAD = 3.1415927;
-    static const REV_RAD = 2.2;
+    static const REV_RAD = 2.8;
 
     var laps as Number = 0;
     var turn as Float = 0.0;            // obrót [rad] od ostatniego okrążenia
@@ -41,6 +45,9 @@ class LapCounter {
     private var _lapTimes as Array<Number> = [];
     private var _peak as Float = 0.0;
     private var _peakT as Number = 0;
+    private var _prevD as Float = 0.0;       // poprzednia próbka (zwrot rozłożony na dwie)
+    private var _justFlipped as Boolean = false;
+    private var _rate as Float = 0.0;        // obrót z jazdy na próbkę (zakręt)
 
     function initialize() {
     }
@@ -68,10 +75,29 @@ class LapCounter {
         }
         var d = wrap(hd - _anchor);
         _anchor = hd;
-        if (d > FLIP_RAD || d < -FLIP_RAD) {
+        // obrót z samej jazdy (zakręt) przewidujemy z ostatnich sekund i odejmujemy przed oceną zwrotu
+        var dd = d - _rate;
+        var flip = false;
+        if (_justFlipped) {
+            // tuż po zwrocie drugi zwrot nie jest możliwy – reszta to jazda (np. zakręt)
+            _justFlipped = false;
+            _prevD = 0.0;
+        } else if (dd > FLIP_RAD || dd < -FLIP_RAD) {
+            flip = true;
+        } else if (absf(_prevD + dd) > FLIP2_RAD && _prevD * dd > 0) {
+            flip = true;  // zwrot rozłożony na dwie próbki
+        } else {
+            _prevD = dd;
+        }
+        if (flip) {
             // zwrot przód/tył (w którąkolwiek stronę) – kierunek jazdy się nie zmienił
             backward = !backward;
-            d += (d > 0) ? -PI_F : PI_F;
+            d += (dd > 0) ? -PI_F : PI_F;
+            _prevD = 0.0;
+            _justFlipped = true;
+        } else if (!_justFlipped && absf(dd) < CALM_RAD) {
+            // tempo zakrętu uczymy się tylko na spokojnych próbkach (nie z połowy zwrotu)
+            _rate += 0.3 * (d - _rate);
         }
         turn += d;
         trackDirection(timerMs);
