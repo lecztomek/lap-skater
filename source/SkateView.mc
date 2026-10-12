@@ -61,6 +61,8 @@ class SkateView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(cx, h * 0.70, Graphics.FONT_SMALL, _s.lapLen.toNumber() + " m", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, h * 0.84, Graphics.FONT_XTINY, WatchUi.loadResource(Rez.Strings.AppVersion) as String, Graphics.TEXT_JUSTIFY_CENTER);
             return;
         }
 
