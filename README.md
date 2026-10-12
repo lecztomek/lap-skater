@@ -6,7 +6,8 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 - **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć)
 - **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (po cichu).
   Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
-  Piruety/zawrotki szybsze niż 8 s nie są liczone jako okrążenie.
+  Piruety i szybkie obroty są wykrywane szybkim odczytem magnetometru (~25 Hz) i pomijane –
+  liczy się tylko różnica kierunku przed i po piruecie. Dodatkowo okrążenie krótsze niż 8 s nie jest liczone.
 - **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu, krótka wibracja.
 - **UP / DOWN**: przełączanie ekranu prostego i szczegółów
 - Bez treningu BACK = wyjście z aplikacji

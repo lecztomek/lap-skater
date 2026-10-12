@@ -4,8 +4,10 @@ import Toybox.Application;
 import Toybox.Attention;
 import Toybox.FitContributor;
 import Toybox.Lang;
+import Toybox.Math;
 import Toybox.Position;
 import Toybox.Sensor;
+import Toybox.System;
 import Toybox.WatchUi;
 
 // Nagrywanie treningu jako "Jazda na łyżwach" (FIT sport 33).
@@ -17,6 +19,12 @@ class SkateSession {
     private const PI_F = 3.1415927;
     private const TWO_PI_F = 6.2831853;
     private const SPEED_WINDOW = 10; // s, wygładzanie prędkości
+    // Piruet: magnetometr ~25 Hz, obrót szybszy niż SPIN_RATE przez SPIN_MIN_SAMPLES próbek.
+    // Na lodzie (nawet w zakręcie) obracamy się ~0,5 rad/s, piruet to 10–30 rad/s.
+    private const MAG_RATE = 25;
+    private const SPIN_RATE = 8.0;
+    private const SPIN_MIN_SAMPLES = 5;
+    private const SPIN_HOLD_MS = 1500;
 
     private var _session = null;
     private var _fDist = null;
@@ -35,7 +43,15 @@ class SkateSession {
     var maxKmh as Float = 0.0;
     var turn as Float = 0.0;          // obrót [rad] od ostatniego okrążenia
     var hasCompass as Boolean = false;
-    private var _lastHeading = null;
+    private var _anchor = null;       // ostatni zatwierdzony kierunek
+    private var _pendHd = null;       // próbka czekająca 1 s na ewentualne wykrycie piruetu
+    private var _pendT as Number = 0;
+    private var _spinFromMs as Number = -100000;
+    private var _spinUntilMs as Number = -100000;
+    private var _fastCount as Number = 0;
+    private var _mx = null;
+    private var _my = 0.0;
+    private var _mz = 0.0;
     private var _distHist as Array<Float> = [];
     var gpsQuality as Number = Position.QUALITY_NOT_AVAILABLE;
     var justSaved as Boolean = false;
@@ -54,6 +70,7 @@ class SkateSession {
     function enableSensors() as Void {
         Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE]);
         Sensor.enableSensorEvents(method(:onSensor));
+        enableMagnetometer();
         if (gpsMode) {
             Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
         }
@@ -61,6 +78,9 @@ class SkateSession {
 
     function disableSensors() as Void {
         Sensor.enableSensorEvents(null);
+        if (Sensor has :unregisterSensorDataListener) {
+            Sensor.unregisterSensorDataListener();
+        }
         if (gpsMode) {
             Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
         }
@@ -71,26 +91,104 @@ class SkateSession {
         WatchUi.requestUpdate();
     }
 
+    // Szybkie dane magnetometru służą tylko do wykrycia piruetu (bez kalibracji – liczy się tempo zmian).
+    private function enableMagnetometer() as Void {
+        if (!(Sensor has :registerSensorDataListener)) {
+            return;
+        }
+        try {
+            Sensor.registerSensorDataListener(method(:onSensorData), {
+                :period => 1,
+                :magnetometer => {:enabled => true, :sampleRate => MAG_RATE}
+            });
+        } catch (e) {
+            // bez wykrywania piruetów – liczenie działa jak wcześniej
+        }
+    }
+
+    function onSensorData(data as Sensor.SensorData) as Void {
+        var md = data.magnetometerData;
+        if (md == null || md.x == null || md.y == null || md.z == null) {
+            return;
+        }
+        var xs = md.x;
+        var ys = md.y;
+        var zs = md.z;
+        var now = System.getTimer();
+        for (var i = 0; i < xs.size(); i++) {
+            var x = xs[i].toFloat();
+            var y = ys[i].toFloat();
+            var z = zs[i].toFloat();
+            if (_mx != null) {
+                var n = Math.sqrt((x * x + y * y + z * z) * (_mx * _mx + _my * _my + _mz * _mz));
+                if (n > 0) {
+                    var c = (x * _mx + y * _my + z * _mz) / n;
+                    if (c > 1.0) { c = 1.0; }
+                    if (c < -1.0) { c = -1.0; }
+                    if (Math.acos(c) * MAG_RATE > SPIN_RATE) {
+                        _fastCount += 1;
+                        if (_fastCount >= SPIN_MIN_SAMPLES) {
+                            if (now > _spinUntilMs) {
+                                _spinFromMs = now - 1300; // paczka danych obejmuje ostatnią sekundę
+                            }
+                            _spinUntilMs = now + SPIN_HOLD_MS;
+                        }
+                    } else {
+                        _fastCount = 0;
+                    }
+                }
+            }
+            _mx = x;
+            _my = y;
+            _mz = z;
+        }
+    }
+
     // ~1 Hz. Sumujemy zmianę kierunku; arytmetyka w (-PI, PI], więc przejście przez północ nie przeszkadza.
     // Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
+    // Próbki z czasu piruetu pomijamy i liczymy różnicę między kierunkiem przed i po piruecie
+    // (wyjeżdżamy w tę samą stronę, więc to mały kąt). Każda próbka czeka 1 s, bo dane
+    // magnetometru przychodzą paczkami co sekundę.
     function onSensor(info as Sensor.Info) as Void {
         var hd = info.heading;
         if (hd == null) {
             return;
         }
         hasCompass = true;
-        if (isRecording() && !gpsMode && _lastHeading != null) {
-            var d = (hd - _lastHeading).toFloat();
-            while (d > PI_F) { d -= TWO_PI_F; }
-            while (d <= -PI_F) { d += TWO_PI_F; }
-            turn += d;
-            if (turn >= TWO_PI_F || turn <= -TWO_PI_F) {
-                // zostawiamy nadwyżkę ponad 360° dla następnego okrążenia
-                turn += (turn > 0) ? -TWO_PI_F : TWO_PI_F;
-                countLap(false);
-            }
+        if (!isRecording() || gpsMode) {
+            _anchor = hd;
+            _pendHd = null;
+            return;
         }
-        _lastHeading = hd;
+        var now = System.getTimer();
+        if (_pendHd != null) {
+            if (_pendT < _spinFromMs || _pendT > _spinUntilMs) {
+                commitHeading(_pendHd);
+            }
+            _pendHd = null;
+        }
+        if (now >= _spinFromMs && now <= _spinUntilMs) {
+            return;
+        }
+        _pendHd = hd;
+        _pendT = now;
+    }
+
+    private function commitHeading(hd) as Void {
+        if (_anchor == null) {
+            _anchor = hd;
+            return;
+        }
+        var d = (hd - _anchor).toFloat();
+        while (d > PI_F) { d -= TWO_PI_F; }
+        while (d <= -PI_F) { d += TWO_PI_F; }
+        turn += d;
+        _anchor = hd;
+        if (turn >= TWO_PI_F || turn <= -TWO_PI_F) {
+            // zostawiamy nadwyżkę ponad 360° dla następnego okrążenia
+            turn += (turn > 0) ? -TWO_PI_F : TWO_PI_F;
+            countLap(false);
+        }
     }
 
     // Co sekundę z widoku: prędkość z dystansu w oknie SPEED_WINDOW s.
