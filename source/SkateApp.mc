@@ -19,6 +19,7 @@ class SkateApp extends Application.AppBase {
     }
 
     function getInitialView() {
-        return [new SkateView(session), new SkateDelegate(session)];
+        var view = new SkateView(session);
+        return [view, new SkateDelegate(session, view)];
     }
 }

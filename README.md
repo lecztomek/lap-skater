@@ -4,13 +4,14 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 
 ## Obsługa (kryte lodowisko)
 - **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć)
-- **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (krótka wibracja).
+- **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (po cichu).
   Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
   Piruety/zawrotki szybsze niż 8 s nie są liczone jako okrążenie.
-- **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu.
+- **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu, krótka wibracja.
+- **UP / DOWN**: przełączanie ekranu prostego i szczegółów
 - Bez treningu BACK = wyjście z aplikacji
-- Ekran: „Okr. 12 +40%” (pełne okrążenia + postęp bieżącego), czas, tętno, kcal, dystans,
-  prędkość (z ostatnich 10 s), średnia i maksymalna
+- Ekran główny: czas, duża liczba okrążeń, dystans; postęp bieżącego okrążenia jako niebieski pierścień
+- Ekran szczegółów: okrążenia z %, czas, tętno, kcal, dystans, prędkość (z ostatnich 10 s), średnia i maksymalna
 
 Ograniczenia: jeśli lodowisko w trakcie zmieni kierunek jazdy, tracisz najwyżej kawałek okrążenia.
 Jazda „ósemkami” albo zabawa na środku tafli nie liczy się jako dystans.

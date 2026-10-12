@@ -219,7 +219,10 @@ class SkateSession {
         }
         writeFit();
         _session.addLap();
-        alert(Attention has :TONE_LAP ? Attention.TONE_LAP : null);
+        // automatyczne okrążenia po cichu; ręczne potwierdza krótka wibracja
+        if (manual && Attention has :vibrate) {
+            Attention.vibrate([new Attention.VibeProfile(50, 150)]);
+        }
         return true;
     }
 

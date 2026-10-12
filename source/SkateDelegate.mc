@@ -3,13 +3,25 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 
 // START/ENTER: start / pauza (menu).  BACK/LAP: okrążenie w trakcie, wyjście gdy brak treningu.
-// Przytrzymaj UP (MENU): ustawienia – tylko gdy nie ma treningu.
+// Przytrzymaj UP (MENU): ustawienia – tylko gdy nie ma treningu.  UP/DOWN: ekran prosty / szczegóły.
 class SkateDelegate extends WatchUi.BehaviorDelegate {
     private var _s as SkateSession;
+    private var _view as SkateView;
 
-    function initialize(s as SkateSession) {
+    function initialize(s as SkateSession, view as SkateView) {
         BehaviorDelegate.initialize();
         _s = s;
+        _view = view;
+    }
+
+    function onNextPage() as Boolean {
+        _view.togglePage();
+        return true;
+    }
+
+    function onPreviousPage() as Boolean {
+        _view.togglePage();
+        return true;
     }
 
     function onSelect() as Boolean {
