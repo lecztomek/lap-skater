@@ -1,4 +1,4 @@
-# Łyżwy – aplikacja Connect IQ
+# Lap Skater (Łyżwy) – aplikacja Connect IQ
 
 Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect pojawia się z właściwym typem.
 
@@ -27,7 +27,26 @@ Natywne pole „Dystans” zostaje puste – aplikacje Connect IQ nie mogą go u
 
 Lód na zewnątrz? Włącz w ustawieniach „GPS zamiast okrążeń” – wtedy dystans liczy zegarek z GPS.
 
-## Budowanie i wgranie (bez sklepu)
+## Automatyczny build (GitHub Actions)
+
+Każdy push do `main` buduje aplikację i wystawia pliki w **Releases → „Najnowszy build”**:
+- `lap-skater.iq` – do wgrania w Connect IQ Store jako beta (apps.garmin.com/developer → Upload an App),
+- `lap-skater.prg` – do wgrania kablem do `GARMIN/APPS`.
+
+Jednorazowo: **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Sekret | Wartość |
+|---|---|
+| `GARMIN_USERNAME` | e-mail konta Garmin |
+| `GARMIN_PASSWORD` | hasło konta Garmin (konto bez weryfikacji dwuetapowej) |
+| `DEVELOPER_KEY_B64` | klucz deweloperski w base64 – ten sam przy każdej wersji, inaczej sklep nie przyjmie aktualizacji |
+
+Build akceptuje umowę licencyjną Connect IQ SDK:
+https://developer.garmin.com/downloads/connect-iq/sdks/agreement.html
+(opcjonalnie zmienna repozytorium `GARMIN_AGREEMENT_HASH` = hash przeczytanej wersji).
+Ręczne uruchomienie: Actions → Build → Run workflow.
+
+## Budowanie lokalne (opcjonalnie)
 1. Zainstaluj VS Code + rozszerzenie **Monkey C** oraz **Connect IQ SDK Manager** (developer.garmin.com/connect-iq).
 2. W SDK Managerze pobierz najnowsze SDK i urządzenie **Forerunner 245 Music**.
 3. VS Code: `Monkey C: Generate a Developer Key` (raz).
