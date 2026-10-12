@@ -1,0 +1,8 @@
+<settings>
+    <setting propertyKey="@Properties.lapLength" title="@Strings.SettingLap">
+        <settingConfig type="numeric" min="20" max="1000"/>
+    </setting>
+    <setting propertyKey="@Properties.useGps" title="@Strings.SettingGps">
+        <settingConfig type="boolean"/>
+    </setting>
+</settings>

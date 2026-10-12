@@ -1,0 +1,4 @@
+<properties>
+    <property id="useGps" type="boolean">false</property>
+    <property id="lapLength" type="number">145</property>
+</properties>

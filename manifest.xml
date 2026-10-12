@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <iq:application id="dc7a333d5f674f74900423fb0fcae70e" type="watch-app" name="@Strings.AppName" entry="SkateApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.2.0">
+        <!-- Forerunner 245 Music -->
+        <iq:products>
+            <iq:product id="fr245m"/>
+        </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Fit"/>
+            <iq:uses-permission id="FitContributor"/>
+            <iq:uses-permission id="Positioning"/>
+            <iq:uses-permission id="Sensor"/>
+        </iq:permissions>
+        <iq:languages>
+            <iq:language>pol</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

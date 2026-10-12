@@ -1,0 +1,9 @@
+<fitContributions>
+    <!-- id = numer pola z SkateSession.createFitFields() -->
+    <fitField id="0" displayInActivitySummary="true" sortOrder="0" precision="2" dataLabel="@Strings.FitDist" unitLabel="@Strings.UnitKm"/>
+    <fitField id="1" displayInActivitySummary="true" sortOrder="1" precision="0" dataLabel="@Strings.FitLaps" unitLabel="@Strings.UnitLaps"/>
+    <fitField id="5" displayInActivitySummary="true" sortOrder="2" precision="1" dataLabel="@Strings.FitAvg" unitLabel="@Strings.UnitKmh"/>
+    <fitField id="2" displayInChart="true" sortOrder="3" precision="2" chartTitle="@Strings.FitDist" dataLabel="@Strings.FitDist" unitLabel="@Strings.UnitKm" fillColor="#0055AA"/>
+    <fitField id="3" displayInChart="true" sortOrder="4" precision="1" chartTitle="@Strings.FitLapSpeed" dataLabel="@Strings.FitLapSpeed" unitLabel="@Strings.UnitKmh" fillColor="#FF5500"/>
+    <fitField id="4" displayInActivityLaps="true" sortOrder="5" precision="1" dataLabel="@Strings.FitLapSpeed" unitLabel="@Strings.UnitKmh"/>
+</fitContributions>

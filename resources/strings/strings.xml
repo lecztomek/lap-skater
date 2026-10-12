@@ -1,0 +1,22 @@
+<strings>
+    <string id="AppName">Łyżwy</string>
+    <string id="Paused">Pauza</string>
+    <string id="Resume">Wznów</string>
+    <string id="Save">Zapisz</string>
+    <string id="Discard">Odrzuć</string>
+    <string id="DiscardConfirm">Odrzucić trening?</string>
+    <string id="PressStart">START = start</string>
+    <string id="Saved">Zapisano</string>
+    <string id="Lap">Okr.</string>
+    <string id="SettingLap">Długość okrążenia (m)</string>
+    <string id="SettingGps">GPS zamiast okrążeń (lód na zewnątrz)</string>
+    <string id="Settings">Ustawienia</string>
+    <string id="SettingGpsShort">GPS</string>
+    <string id="FitDist">Dystans</string>
+    <string id="FitLaps">Okrążenia</string>
+    <string id="FitAvg">Śr. prędkość</string>
+    <string id="FitLapSpeed">Prędkość okrążenia</string>
+    <string id="UnitKm">km</string>
+    <string id="UnitKmh">km/h</string>
+    <string id="UnitLaps">okr.</string>
+</strings>
