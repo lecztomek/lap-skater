@@ -89,7 +89,7 @@ class SkateView extends WatchUi.View {
         dc.drawText(cx, h * 0.13, Graphics.FONT_MEDIUM, top, Graphics.TEXT_JUSTIFY_CENTER);
 
         // okrążenia – największa liczba
-        var big = _s.gpsMode ? (val(info != null ? info.currentSpeed : null, 0.0) * 3.6).format("%.1f") : _s.laps.toString();
+        var big = _s.gpsMode ? (val(info != null ? info.currentSpeed : null, 0.0) * 3.6).format("%.1f") : _s.lapsShown().toString();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, cy, Graphics.FONT_NUMBER_THAI_HOT, big, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -119,7 +119,7 @@ class SkateView extends WatchUi.View {
         var status;
         var statusColor = Graphics.COLOR_LT_GRAY;
         if (_s.isRecording()) {
-            status = (WatchUi.loadResource(Rez.Strings.Lap) as String) + " " + _s.laps;
+            status = (WatchUi.loadResource(Rez.Strings.Lap) as String) + " " + _s.lapsShown();
             if (!_s.gpsMode) {
                 status += _s.hasCompass ? "  +" + _s.lapPercent() + "%" : "  BACK=okr.";
             }

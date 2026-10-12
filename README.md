@@ -9,6 +9,9 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 - **Piruety i jazda tyłem**: szybkie obroty wykrywa magnetometr z akcelerometrem (25 Hz); obrót ciała
   w czasie manewru jest zaokrąglany do wielokrotności 180° i odejmowany (nieparzysta liczba połówek =
   zwrot przód/tył), więc nie dodaje ani nie zabiera okrążeń.
+- **Zmiana kierunku jazdy** (np. co 30 min): wykrywana, gdy kompas zaczyna obracać się konsekwentnie
+  w drugą stronę; niedokończone okrążenie sprzed nawrotu liczone z czasu (wzorzec tempa), dalej liczenie
+  w nową stronę. Błąd w symulacji: ~0,2–0,4 okrążenia na nawrót.
 - **Pierwsze okrążenie = wzorzec**: kalibruje magnetometr i tempo; automatyczne „okrążenie” krótsze niż
   połowa typowego (mediana ostatnich) jest odrzucane.
 - **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu, krótka wibracja.

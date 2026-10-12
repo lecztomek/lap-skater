@@ -153,11 +153,17 @@ class SkateSession {
 
     // Dystans w metrach: pełne okrążenia + część bieżącego wg obrotu.
     function distance() as Float {
-        return (laps + counter.lapFraction()) * lapLen;
+        return counter.totalLaps() * lapLen;
+    }
+
+    // Okrążenia do wyświetlenia (łącznie z niedokończonymi sprzed zmian kierunku).
+    function lapsShown() as Number {
+        return Math.floor(counter.totalLaps()).toNumber();
     }
 
     function lapPercent() as Number {
-        return ((distance() / lapLen - laps) * 100).toNumber();
+        var t = counter.totalLaps();
+        return ((t - Math.floor(t)) * 100).toNumber();
     }
 
     function avgKmh() as Float {
@@ -203,7 +209,7 @@ class SkateSession {
         }
         var km = distance() / 1000.0;
         _fDist.setData(km);
-        _fLaps.setData(laps);
+        _fLaps.setData(lapsShown());
         _fRecDist.setData(km);
         _fRecSpeed.setData(lastLapKmh);
         _fAvg.setData(avgKmh());

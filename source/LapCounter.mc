@@ -14,6 +14,9 @@ import Toybox.Math;
 //   manewru pomijamy; obrót ciała mierzony szybkimi danymi zaokrąglamy do wielokrotności 180°
 //   i odejmujemy (nieparzysta liczba połówek = zwrot przód/tył),
 // - bez szybkich danych: skok kierunku > 135° między próbkami to zwrot przód/tył.
+// Zmiana kierunku jazdy (np. co 30 min na lodowisku): kompas zaczyna obracać się konsekwentnie
+// w drugą stronę (> REV_RAD od szczytu). Niedokończone okrążenie sprzed nawrotu liczymy z czasu
+// (wzorzec tempa) i odkładamy w carry, a liczenie zaczyna się od nawrotu w nową stronę.
 // Pierwsze okrążenie jest wzorcem: magnetometr kalibruje się na nim (zakres osi), a jego czas
 // (potem mediana ostatnich) odrzuca "okrążenia" dużo krótsze niż typowe.
 class LapCounter {
@@ -38,6 +41,10 @@ class LapCounter {
     // Wzorzec tempa: mediana ostatnich REF_LAPS okrążeń (na początku – pierwsze).
     static const REF_LAPS = 5;
     static const REF_MIN_FRACTION = 0.5;
+    // Kierunek jazdy ustala się po pół okrążenia; nawrót = cofnięcie o > 126° od szczytu
+    // (zakłócenia hali dają najwyżej ~80°, zakręt w drugą stronę to 180°).
+    static const DIR_SET_RAD = 3.1415927;
+    static const REV_RAD = 2.2;
 
     var laps as Number = 0;
     var turn as Float = 0.0;            // obrót [rad] od ostatniego okrążenia
@@ -45,6 +52,11 @@ class LapCounter {
     var lastLapDtMs as Number = 0;      // czas ostatniego okrążenia
     var spinsDetected as Number = 0;
     var rejectedLaps as Number = 0;
+    var direction as Number = 0;        // +1 / -1 kierunek jazdy po owalu, 0 = jeszcze nie wiadomo
+    var reversals as Number = 0;
+    var carry as Float = 0.0;           // niedokończone okrążenia sprzed nawrotów
+    private var _peak as Float = 0.0;
+    private var _peakT as Number = 0;
 
     private var _lastLapTimerMs as Number = 0;
     private var _lapTimes as Array<Number> = [];
@@ -280,6 +292,7 @@ class LapCounter {
         }
         turn += d;
         _totalRot += absf(d);
+        trackDirection(timerMs);
         if (!_calReady && _totalRot >= TWO_PI_F) {
             // po pełnym obrocie zakres osi magnetometru jest znany – szybkie dane od zera
             _calReady = true;
@@ -292,15 +305,51 @@ class LapCounter {
         if (turn >= TWO_PI_F || turn <= -TWO_PI_F) {
             // nadwyżka ponad 360° zostaje dla następnego okrążenia
             turn += (turn > 0) ? -TWO_PI_F : TWO_PI_F;
+            _peak = turn;
+            _peakT = timerMs;
             return tryLap(timerMs, true);
         }
         return false;
+    }
+
+    private function trackDirection(timerMs as Number) as Void {
+        if (direction == 0) {
+            if (absf(turn) >= DIR_SET_RAD) {
+                direction = turn > 0 ? 1 : -1;
+                _peak = turn;
+                _peakT = timerMs;
+            }
+            return;
+        }
+        if (direction * (turn - _peak) > 0) {
+            _peak = turn;
+            _peakT = timerMs;
+        } else if (direction * (_peak - turn) > REV_RAD) {
+            // nawrót w chwili _peakT: niedokończone okrążenie liczymy z czasu (wzorzec tempa)
+            var ref = referenceLapMs();
+            var frac = ref > 0 ? (_peakT - _lastLapTimerMs).toFloat() / ref : absf(_peak) / TWO_PI_F;
+            if (frac < 0.0) { frac = 0.0; }
+            if (frac > 0.95) { frac = 0.95; }
+            carry += frac;
+            if (carry >= 1.0) {
+                carry -= 1.0;
+                laps += 1;
+            }
+            turn -= _peak;               // obrót od chwili nawrotu, już w nową stronę
+            _lastLapTimerMs = _peakT;    // tempo kolejnego okrążenia liczymy od nawrotu
+            direction = -direction;
+            _peak = turn;
+            _peakT = timerMs;
+            reversals += 1;
+        }
     }
 
     // BACK: ręczne okrążenie – zeruje licznik obrotu.
     function manualLap(timerMs as Number) as Boolean {
         if (tryLap(timerMs, false)) {
             turn = 0.0;
+            _peak = 0.0;
+            _peakT = timerMs;
             return true;
         }
         return false;
@@ -343,6 +392,11 @@ class LapCounter {
             a[j + 1] = v;
         }
         return a[n / 2];
+    }
+
+    // Przejechane okrążenia łącznie (pełne + niedokończone sprzed nawrotów + bieżące).
+    function totalLaps() as Float {
+        return laps + carry + lapFraction();
     }
 
     // Część bieżącego okrążenia 0..1.

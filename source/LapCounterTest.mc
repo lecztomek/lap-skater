@@ -41,7 +41,7 @@ class RinkSim {
     var offset as Float = 0.0;         // obrót całej tafli względem północy
     var fast as Boolean = true;        // czy są szybkie dane
     var hardIron as Array<Float> = [0.0, 0.0, 0.0]; // magnetyzm zegarka (brak kalibracji)
-    // manewry: [start s, obrót rad, czas s, jedzie?]
+    // manewry: [start s, obrót rad, czas s, jedzie?(, zmiana kierunku jazdy?)]
     var events as Array = [];
     var seed as Number = 1;
 
@@ -89,16 +89,26 @@ class RinkSim {
         var dist0 = Math.toRadians(distortDeg);
         var nz = Math.toRadians(noiseDeg);
         var ax = [], ay = [], az = [], mx = [], my = [], mz = [];
-        while (sd < total) {
+        var dirSign = 1.0;
+        var trav = 0.0;
+        var reversed = [];
+        while (trav < total) {
             var moving = true;
             for (var i = 0; i < events.size(); i++) {
                 var e = events[i] as Array;
                 if (t >= e[0] && t < e[0] + e[2]) {
                     extra += e[1] / e[2] * dt;
                     moving = e[3];
+                    if (e.size() > 4 && e[4] && reversed.indexOf(i) < 0) {
+                        reversed.add(i);
+                        dirSign = -dirSign;   // nawrót: od teraz jedziemy owalem w drugą stronę
+                    }
                 }
             }
-            if (moving) { sd += speed * dt; }
+            if (moving) {
+                sd += dirSign * speed * dt;
+                trav += speed * dt;
+            }
             var pt = path(sd);
             var x = pt[0];
             var y = pt[1];
@@ -157,6 +167,25 @@ module LapTests {
             if (c.laps != expected) {
                 logger.error(name + " seed " + s + ": " + c.laps + " zamiast " + expected
                     + " (manewry " + c.spinsDetected + ", odrzucone " + c.rejectedLaps + ")");
+                ok = false;
+            }
+        }
+        if (ok) {
+            logger.debug(name + ": OK (" + seeds + " przebiegów)");
+        }
+        return ok;
+    }
+
+    // Zmiana kierunku: liczy się suma (pełne + carry + bieżące) – prawda to laps symulacji.
+    function checkTotal(logger as Logger, name as String, sim as RinkSim, tolerance as Float, seeds as Number) as Boolean {
+        var ok = true;
+        for (var s = 1; s <= seeds; s++) {
+            sim.seed = s;
+            var c = sim.run(new LapCounter(), []);
+            var err = (c.totalLaps() - sim.laps).abs();
+            if (err > tolerance || c.reversals != 2) {
+                logger.error(name + " seed " + s + ": suma " + c.totalLaps().format("%.2f") + " zamiast "
+                    + sim.laps + ", nawroty " + c.reversals);
                 ok = false;
             }
         }
@@ -345,4 +374,34 @@ function testReferenceRejectsTooShortLap(logger as Logger) as Boolean {
     }
     logger.debug("wzorzec " + ref + " ms, okrążenia " + c.laps + ", odrzucone " + c.rejectedLaps);
     return ref == 34000 && c.laps == 3 && c.rejectedLaps == 1;
+}
+
+// Typowa sesja: jazda w jedną stronę, po ~kilku minutach zmiana kierunku i z powrotem.
+// 30,5 okrążenia, dwa nawroty; suma ma się zgadzać z dokładnością do 1 okrążenia.
+(:test)
+function testDirectionChangeFastTurn(logger as Logger) as Boolean {
+    var s = LapTests.noisy();
+    var p = LapTests.PI_F;
+    s.laps = 30.5;
+    s.events = [[340.0, p, 0.8, true, true], [700.0, -p, 0.8, true, true]];
+    return LapTests.checkTotal(logger, "zmiana kierunku, szybki nawrót", s, 1.0, 3);
+}
+
+(:test)
+function testDirectionChangeSlowTurn(logger as Logger) as Boolean {
+    var s = LapTests.noisy();
+    var p = LapTests.PI_F;
+    s.laps = 30.5;
+    s.events = [[340.0, -p, 3.0, true, true], [700.0, -p, 3.0, true, true]];
+    return LapTests.checkTotal(logger, "zmiana kierunku, wolny nawrót", s, 1.0, 3);
+}
+
+(:test)
+function testDirectionChangeWithManeuvers(logger as Logger) as Boolean {
+    var s = LapTests.noisy();
+    var p = LapTests.PI_F;
+    s.laps = 30.5;
+    s.events = [[150.0, 6 * p, 1.0, false], [340.0, p, 0.8, true, true], [450.0, p, 0.5, true],
+        [500.0, p, 0.5, true], [700.0, -p, 0.8, true, true], [850.0, -4 * p, 1.0, false]];
+    return LapTests.checkTotal(logger, "zmiana kierunku + piruety + tyłem", s, 1.0, 3);
 }
