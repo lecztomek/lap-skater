@@ -10,7 +10,7 @@
     <string id="Lap">Okr.</string>
     <string id="SettingLap">Długość okrążenia (m)</string>
     <string id="SettingGps">GPS zamiast okrążeń (lód na zewnątrz)</string>
-    <string id="AppVersion">v1.0.5</string>
+    <string id="AppVersion">v1.0.6</string>
     <string id="Settings">Ustawienia</string>
     <string id="SettingGpsShort">GPS</string>
     <string id="FitDist">Dystans</string>

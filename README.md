@@ -6,13 +6,12 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 - **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć)
 - **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (po cichu).
   Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
-- **Piruety i jazda tyłem**: szybkie obroty wykrywa magnetometr z akcelerometrem (25 Hz); obrót ciała
-  w czasie manewru jest zaokrąglany do wielokrotności 180° i odejmowany (nieparzysta liczba połówek =
-  zwrot przód/tył), więc nie dodaje ani nie zabiera okrążeń.
+- **Jazda tyłem**: zwrot przód/tył to skok kompasu o > 135° w sekundę – odejmowany, nie dodaje okrążeń.
+  Piruety: okrążenie krótsze niż połowa typowego (wzorzec tempa) jest odrzucane.
 - **Zmiana kierunku jazdy** (np. co 30 min): wykrywana, gdy kompas zaczyna obracać się konsekwentnie
   w drugą stronę; niedokończone okrążenie sprzed nawrotu liczone z czasu (wzorzec tempa), dalej liczenie
   w nową stronę. Błąd w symulacji: ~0,2–0,4 okrążenia na nawrót.
-- **Pierwsze okrążenie = wzorzec**: kalibruje magnetometr i tempo; automatyczne „okrążenie” krótsze niż
+- **Pierwsze okrążenie = wzorzec tempa**; automatyczne „okrążenie” krótsze niż
   połowa typowego (mediana ostatnich) jest odrzucane.
 - **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu, krótka wibracja.
 - **UP / DOWN**: przełączanie ekranu prostego i szczegółów
@@ -39,7 +38,7 @@ Lód na zewnątrz? Włącz w ustawieniach „GPS zamiast okrążeń” – wtedy
 
 Algorytm liczenia okrążeń jest w `source/LapCounter.mc` (bez czujników), testy w
 `source/LapCounterTest.mc`: syntetyczna jazda po owalu 60×30 m z zakłóceniami hali, machaniem ręką,
-piruetami, jazdą tyłem, nieskalibrowanym magnetometrem, ręcznymi okrążeniami – każdy scenariusz na kilku
+piruetami, jazdą tyłem, zmianą kierunku jazdy, ręcznymi okrążeniami, plus test dymny sesji – każdy scenariusz na kilku
 ziarnach losowych. CI uruchamia je w symulatorze Connect IQ przed każdym buildem; czerwony test
 blokuje wydanie. Wynik: artefakt `test.log` w danym przebiegu Actions.
 

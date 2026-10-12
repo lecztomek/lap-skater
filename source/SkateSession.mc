@@ -15,7 +15,6 @@ import Toybox.WatchUi;
 // Dystans = okrążenia x długość okrążenia z ustawień. BACK = okrążenie ręcznie (korekta).
 class SkateSession {
     private const SPEED_WINDOW = 10; // s, wygładzanie prędkości
-    private const FAST_RATE = 25;    // Hz, szybkie dane do wykrywania manewrów (LapCounter)
 
     private var _session = null;
     private var _fDist = null;
@@ -52,7 +51,6 @@ class SkateSession {
     function enableSensors() as Void {
         Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE]);
         Sensor.enableSensorEvents(method(:onSensor));
-        enableFastSensors();
         if (gpsMode) {
             Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
         }
@@ -60,9 +58,6 @@ class SkateSession {
 
     function disableSensors() as Void {
         Sensor.enableSensorEvents(null);
-        if (Sensor has :unregisterSensorDataListener) {
-            Sensor.unregisterSensorDataListener();
-        }
         if (gpsMode) {
             Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
         }
@@ -71,34 +66,6 @@ class SkateSession {
     function onPosition(info as Position.Info) as Void {
         gpsQuality = info.accuracy;
         WatchUi.requestUpdate();
-    }
-
-    // Szybkie dane (magnetometr + akcelerometr) służą do wykrywania piruetów i zwrotów przód/tył.
-    private function enableFastSensors() as Void {
-        if (!(Sensor has :registerSensorDataListener)) {
-            return;
-        }
-        try {
-            Sensor.registerSensorDataListener(method(:onSensorData), {
-                :period => 1,
-                :accelerometer => {:enabled => true, :sampleRate => FAST_RATE},
-                :magnetometer => {:enabled => true, :sampleRate => FAST_RATE}
-            });
-        } catch (e) {
-            // bez szybkich danych – zwroty wykrywa sam kompas
-        }
-    }
-
-    function onSensorData(data as Sensor.SensorData) as Void {
-        if (!isRecording() || gpsMode) {
-            return;
-        }
-        var md = data.magnetometerData;
-        var ad = data.accelerometerData;
-        if (md == null || ad == null || md.x == null || ad.x == null) {
-            return;
-        }
-        counter.addFastSamples(ad.x, ad.y, ad.z, md.x, md.y, md.z, System.getTimer());
     }
 
     // ~1 Hz.
@@ -112,7 +79,7 @@ class SkateSession {
             counter.hold(hd.toFloat());
             return;
         }
-        if (counter.addHeading(hd.toFloat(), System.getTimer(), timerMs())) {
+        if (counter.addHeading(hd.toFloat(), timerMs())) {
             onLap(false);
         }
     }
