@@ -1,0 +1,13 @@
+<strings>
+    <string id="AppName">Rolki</string>
+    <string id="AppVersion">v1.0.0</string>
+    <string id="Paused">Pauza</string>
+    <string id="Resume">Wznów</string>
+    <string id="Save">Zapisz</string>
+    <string id="Discard">Odrzuć</string>
+    <string id="DiscardConfirm">Odrzucić trening?</string>
+    <string id="PressStart">START</string>
+    <string id="Saved">Zapisano</string>
+    <string id="GpsWait">Szukam GPS…</string>
+    <string id="GpsOk">GPS OK</string>
+</strings>

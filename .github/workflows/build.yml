@@ -17,6 +17,17 @@ jobs:
   build:
     # symulator Connect IQ wymaga libwebkit2gtk-4.0 (brak w Ubuntu 24.04)
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: lap-skater   # Łyżwy (katalog główny)
+            dir: .
+          - app: rolki        # Rolki
+            dir: rolki
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +60,7 @@ jobs:
           path: |
             ~/.Garmin/ConnectIQ/Sdks
             ~/.Garmin/ConnectIQ/Devices
-          key: ciq-${{ env.DEVICE }}-${{ hashFiles('manifest.xml') }}-${{ github.run_id }}
+          key: ciq-${{ env.DEVICE }}-${{ matrix.app }}-${{ github.run_id }}
           restore-keys: ciq-${{ env.DEVICE }}-
 
       - name: Download SDK and device
@@ -90,13 +101,6 @@ jobs:
             rm key.pem
           fi
 
-      - name: Sensor API (diagnostyka)
-        continue-on-error: true
-        run: |
-          SDK="$(dirname "$(dirname "$(command -v monkeyc)")")"
-          grep -rhoE "(getMaxSampleRate[A-Za-z]*|registerSensorDataListener)\([^)]*\)[^<]{0,200}" "$SDK" 2>/dev/null | sort -u | head -20 || true
-          ls "$SDK"
-
       - name: Unit tests (symulator)
         run: |
           sudo apt-get update -qq
@@ -123,26 +127,37 @@ jobs:
           mkdir -p out
           monkeyc --version
           # .prg – do wgrania kablem do GARMIN/APPS
-          monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/lap-skater.prg -r -w
+          monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/${{ matrix.app }}.prg -r -w
           # .iq – do wgrania w Connect IQ Store (beta)
-          monkeyc -f monkey.jungle -e -y developer_key.der -o out/lap-skater.iq -r -w
+          monkeyc -f monkey.jungle -e -y developer_key.der -o out/${{ matrix.app }}.iq -r -w
           rm developer_key.der out/test.prg* 2>/dev/null || true
           ls -l out
 
       - uses: actions/upload-artifact@v4
         with:
-          name: lap-skater
+          name: ${{ matrix.app }}
           path: |
-            out/
-            test.log
+            ${{ matrix.dir }}/out/${{ matrix.app }}.iq
+            ${{ matrix.dir }}/out/${{ matrix.app }}.prg
+            ${{ matrix.dir }}/test.log
 
-      # Stały link do pobrania najnowszej wersji (także z iPhone'a): Releases → "Najnowszy build"
+  # Stały link do pobrania najnowszych wersji (także z iPhone'a): Releases → "Najnowszy build"
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
       - name: Publish latest build
-        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
+          find dist -type f
           gh release delete latest-build --yes --cleanup-tag || true
-          gh release create latest-build out/lap-skater.iq out/lap-skater.prg \
+          gh release create latest-build $(find dist -name '*.iq' -o -name '*.prg') \
             --title "Najnowszy build" --prerelease --target "$GITHUB_SHA" \
-            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater.iq → Connect IQ Store (beta), lap-skater.prg → GARMIN/APPS."
+            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater = Łyżwy, rolki = Rolki. Plik .iq → Connect IQ Store (beta), .prg → GARMIN/APPS."

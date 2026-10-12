@@ -1,4 +1,10 @@
-# Lap Skater (Łyżwy) – aplikacja Connect IQ
+# Lap Skater – aplikacje Connect IQ: Łyżwy i Rolki
+
+Dwie aplikacje z jednej rodziny na Forerunner 245 Music:
+- **Łyżwy** (katalog główny) – kryte lodowisko, okrążenia z kompasu, bez GPS.
+- **Rolki** (`rolki/`) – jazda na rolkach z GPS: dystans, prędkość, trasa; automatyczne okrążenie co 1 km.
+
+# Łyżwy
 
 Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect pojawia się z właściwym typem.
 
@@ -72,3 +78,15 @@ Ręczne uruchomienie: Actions → Build → Run workflow.
 6. Podłącz zegarek kablem, skopiuj `.prg` do `GARMIN/APPS/`, odłącz. Na zegarku: START → przewiń w dół do „Łyżwy” (lub dodaj do ulubionych: Ustawienia → Aktywności i aplikacje).
 
 Test w symulatorze: `F5` (Run) w VS Code.
+
+# Rolki
+
+Nagrywa trening jako **Jazda na rolkach** (FIT sport 30). Dystans, prędkość i trasę liczy GPS zegarka,
+więc w Garmin Connect są w zwykłych polach i na mapie.
+
+- **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć). Przed startem widać, czy GPS
+  złapał sygnał („GPS OK”) – najlepiej poczekać.
+- Ekran główny: czas (kropka u góry = stan GPS), duży dystans, prędkość. **UP/DOWN**: tętno, kalorie,
+  średnia i maks. prędkość, dystans bieżącego kilometra.
+- **Okrążenie co 1 km** automatycznie (po cichu) – międzyczasy w Garmin Connect. **BACK**: ręczne okrążenie.
+- Testy: `rolki/source/RolkiTest.mc` (okrążenia co 1 km, test dymny sesji z GPS).
