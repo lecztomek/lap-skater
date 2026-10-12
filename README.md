@@ -6,8 +6,11 @@ Nagrywa trening jako **Jazda na łyżwach** (FIT sport 33) – w Garmin Connect 
 - **START**: start; w trakcie → pauza + menu (Wznów / Zapisz / Odrzuć)
 - **Okrążenia liczą się same** – z kompasu: każde pełne 360° obrotu = jedno okrążenie (po cichu).
   Zakłócenia magnetyczne hali są stałe w danym miejscu, więc na pełnym okrążeniu się znoszą.
-  Piruety i szybkie obroty są wykrywane szybkim odczytem magnetometru (~25 Hz) i pomijane –
-  liczy się tylko różnica kierunku przed i po piruecie. Dodatkowo okrążenie krótsze niż 8 s nie jest liczone.
+- **Piruety i jazda tyłem**: szybkie obroty wykrywa magnetometr z akcelerometrem (25 Hz); obrót ciała
+  w czasie manewru jest zaokrąglany do wielokrotności 180° i odejmowany (nieparzysta liczba połówek =
+  zwrot przód/tył), więc nie dodaje ani nie zabiera okrążeń.
+- **Pierwsze okrążenie = wzorzec**: kalibruje magnetometr i tempo; automatyczne „okrążenie” krótsze niż
+  połowa typowego (mediana ostatnich) jest odrzucane.
 - **BACK**: ręczne okrążenie (korekta, gdy kompas coś pominie) – zeruje licznik obrotu, krótka wibracja.
 - **UP / DOWN**: przełączanie ekranu prostego i szczegółów
 - Bez treningu BACK = wyjście z aplikacji
@@ -28,6 +31,14 @@ i średnia prędkość są w sekcji danych aplikacji Connect IQ (wykresy: dystan
 Natywne pole „Dystans” zostaje puste – aplikacje Connect IQ nie mogą go ustawić bez GPS.
 
 Lód na zewnątrz? Włącz w ustawieniach „GPS zamiast okrążeń” – wtedy dystans liczy zegarek z GPS.
+
+## Testy
+
+Algorytm liczenia okrążeń jest w `source/LapCounter.mc` (bez czujników), testy w
+`source/LapCounterTest.mc`: syntetyczna jazda po owalu 60×30 m z zakłóceniami hali, machaniem ręką,
+piruetami, jazdą tyłem, nieskalibrowanym magnetometrem, ręcznymi okrążeniami – każdy scenariusz na kilku
+ziarnach losowych. CI uruchamia je w symulatorze Connect IQ przed każdym buildem; czerwony test
+blokuje wydanie. Wynik: artefakt `test.log` w danym przebiegu Actions.
 
 ## Automatyczny build (GitHub Actions)
 
