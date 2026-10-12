@@ -72,7 +72,7 @@ jobs:
           fi
           connect-iq-sdk-manager login
           connect-iq-sdk-manager sdk set "$SDK_CONSTRAINT"
-          connect-iq-sdk-manager device download --manifest=manifest.xml
+          connect-iq-sdk-manager device download --manifest=manifest.xml --include-fonts
           echo "$(connect-iq-sdk-manager sdk current-path --bin)" >> "$GITHUB_PATH"
 
       - name: Developer key
@@ -89,6 +89,21 @@ jobs:
             rm key.pem
           fi
 
+      - name: Unit tests (symulator)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libusb-1.0-0 libsecret-1-0 libwebkit2gtk-4.1-0 libjpeg-turbo8 libsm6 > /dev/null
+          mkdir -p out
+          monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
+          # symulator potrzebuje ekranu – wirtualny (xvfb)
+          xvfb-run -a bash -c '
+            connectiq &
+            sleep 15
+            timeout 900 monkeydo out/test.prg "$DEVICE" -t
+          ' 2>&1 | tee test.log
+          grep -qE "PASSED|Passed" test.log || { echo "::error::Brak wyniku testów"; exit 1; }
+          if grep -qE "FAIL|ERROR" test.log; then echo "::error::Testy nie przeszły"; exit 1; fi
+
       - name: Build
         run: |
           mkdir -p out
@@ -97,13 +112,15 @@ jobs:
           monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/lap-skater.prg -r -w
           # .iq – do wgrania w Connect IQ Store (beta)
           monkeyc -f monkey.jungle -e -y developer_key.der -o out/lap-skater.iq -r -w
-          rm developer_key.der
+          rm developer_key.der out/test.prg* 2>/dev/null || true
           ls -l out
 
       - uses: actions/upload-artifact@v4
         with:
           name: lap-skater
-          path: out/
+          path: |
+            out/
+            test.log
 
       # Stały link do pobrania najnowszej wersji (także z iPhone'a): Releases → "Najnowszy build"
       - name: Publish latest build
