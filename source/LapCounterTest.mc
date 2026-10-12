@@ -92,7 +92,7 @@ class RinkSim {
         while (sd < total) {
             var moving = true;
             for (var i = 0; i < events.size(); i++) {
-                var e = events[i];
+                var e = events[i] as Array;
                 if (t >= e[0] && t < e[0] + e[2]) {
                     extra += e[1] / e[2] * dt;
                     moving = e[3];

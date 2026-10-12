@@ -63,9 +63,9 @@ class LapCounter {
     private var _uEnd as Float = 0.0;
     // szybkie dane
     private var _calReady as Boolean = false;
-    private var _mn = null;
-    private var _mx = null;
-    private var _g = null;
+    private var _mn as Array<Float>? = null;
+    private var _mx as Array<Float>? = null;
+    private var _g as Array<Float>? = null;
     private var _prevFast = null;
     private var _u as Float = 0.0;       // narastający obrót z szybkich danych
     private var _fastCount as Number = 0;

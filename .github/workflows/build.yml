@@ -15,7 +15,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # symulator Connect IQ wymaga libwebkit2gtk-4.0 (brak w Ubuntu 24.04)
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -92,7 +93,7 @@ jobs:
       - name: Unit tests (symulator)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb libusb-1.0-0 libsecret-1-0 libwebkit2gtk-4.1-0 libjpeg-turbo8 libsm6 > /dev/null
+          sudo apt-get install -y -qq xvfb libusb-1.0-0 libsecret-1-0 libwebkit2gtk-4.0-37 libjpeg-turbo8 libsm6 > /dev/null
           mkdir -p out
           monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
           # symulator potrzebuje ekranu – wirtualny (xvfb)
