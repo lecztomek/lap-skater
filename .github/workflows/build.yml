@@ -99,8 +99,14 @@ jobs:
           # symulator potrzebuje ekranu – wirtualny (xvfb)
           xvfb-run -a bash -c '
             connectiq &
-            sleep 15
-            timeout 900 monkeydo out/test.prg "$DEVICE" -t
+            # symulator startuje kilkadziesiąt sekund – ponawiamy połączenie
+            for i in $(seq 1 12); do
+              sleep 10
+              timeout 900 monkeydo out/test.prg "$DEVICE" -t > run.log 2>&1
+              cat run.log
+              grep -q "Unable to connect to simulator" run.log || break
+              echo "Symulator jeszcze nie gotowy (próba $i)"
+            done
           ' 2>&1 | tee test.log
           grep -qE "PASSED|Passed" test.log || { echo "::error::Brak wyniku testów"; exit 1; }
           if grep -qE "FAIL|ERROR" test.log; then echo "::error::Testy nie przeszły"; exit 1; fi
