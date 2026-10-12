@@ -405,3 +405,29 @@ function testDirectionChangeWithManeuvers(logger as Logger) as Boolean {
         [500.0, p, 0.5, true], [700.0, -p, 0.8, true, true], [850.0, -4 * p, 1.0, false]];
     return LapTests.checkTotal(logger, "zmiana kierunku + piruety + tyłem", s, 1.0, 3);
 }
+
+// Test dymny prawdziwej sesji (czujniki + nagrywanie) – łapie błędy, których nie widać
+// w samym algorytmie, np. nieobsługiwaną częstotliwość czujników na danym zegarku.
+(:test)
+function testSessionSmoke(logger as Logger) as Boolean {
+    var s = new SkateSession();
+    logger.debug("enableSensors");
+    s.enableSensors();
+    logger.debug("start");
+    s.start();
+    logger.debug("heading");
+    for (var i = 0; i < 5; i++) {
+        s.counter.addHeading(0.1 * i, 1000 * (i + 1), 1000 * (i + 1));
+    }
+    logger.debug("fast samples");
+    var a = [0, 0, 1000, 0, 0, 1000];
+    var m = [20, 0, -45, 21, 1, -45];
+    s.counter.addFastSamples([a[0], a[3]], [a[1], a[4]], [a[2], a[5]], [m[0], m[3]], [m[1], m[4]], [m[2], m[5]], 6000);
+    s.update();
+    logger.debug("lap / stop / discard");
+    s.lap();
+    s.stop();
+    s.discard();
+    s.disableSensors();
+    return true;
+}

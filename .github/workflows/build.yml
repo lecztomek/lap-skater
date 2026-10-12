@@ -90,6 +90,13 @@ jobs:
             rm key.pem
           fi
 
+      - name: Sensor API (diagnostyka)
+        continue-on-error: true
+        run: |
+          SDK="$(dirname "$(dirname "$(command -v monkeyc)")")"
+          grep -rhoE "(getMaxSampleRate[A-Za-z]*|registerSensorDataListener)\([^)]*\)[^<]{0,200}" "$SDK" 2>/dev/null | sort -u | head -20 || true
+          ls "$SDK"
+
       - name: Unit tests (symulator)
         run: |
           sudo apt-get update -qq
