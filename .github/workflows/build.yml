@@ -23,14 +23,19 @@ jobs:
           - app: lap-skater   # Łyżwy (katalog główny)
             dir: .
             device: fr245m
+            test_device: fr245m
           - app: rolki        # Rolki
             dir: rolki
             device: fr245m
+            test_device: fr245m
           - app: rower-moc    # pole danych mocy do aktywności Rower (Fazua Ride 60)
             dir: rower
             device: fr55
+            # symulator fr55 (SDK 9.2) wysypuje się przy starcie – logikę testujemy na fr245m
+            test_device: fr245m
     env:
       DEVICE: ${{ matrix.device }}
+      TEST_DEVICE: ${{ matrix.test_device }}
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
@@ -112,14 +117,14 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb libusb-1.0-0 libsecret-1-0 libwebkit2gtk-4.0-37 libjpeg-turbo8 libsm6 > /dev/null
           mkdir -p out
-          monkeyc -f monkey.jungle -d "$DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
+          monkeyc -f monkey.jungle -d "$TEST_DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
           # symulator potrzebuje ekranu – wirtualny (xvfb)
           xvfb-run -a bash -c '
             connectiq &
             # symulator startuje kilkadziesiąt sekund – ponawiamy połączenie
             for i in $(seq 1 12); do
               sleep 10
-              timeout 900 monkeydo out/test.prg "$DEVICE" -t > run.log 2>&1
+              timeout 900 monkeydo out/test.prg "$TEST_DEVICE" -t > run.log 2>&1
               cat run.log
               grep -q "Unable to connect to simulator" run.log || break
               echo "Symulator jeszcze nie gotowy (próba $i)"
