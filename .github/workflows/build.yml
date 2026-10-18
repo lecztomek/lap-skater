@@ -28,6 +28,10 @@ jobs:
             dir: rolki
             device: fr245m
             test_device: fr245m
+          - app: mapa         # podgląd mapy (bez nagrywania)
+            dir: mapa
+            device: fr245m
+            test_device: fr245m
           - app: rower-moc    # pole danych mocy do aktywności Rower (Fazua Ride 60)
             dir: rower
             device: fr55
@@ -175,4 +179,4 @@ jobs:
           gh release delete latest-build --yes --cleanup-tag || true
           gh release create latest-build $(find dist -name '*.iq' -o -name '*.prg') \
             --title "Najnowszy build" --prerelease --target "$GITHUB_SHA" \
-            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater = Łyżwy, rolki = Rolki (FR245M), rower-moc = pole mocy do aktywności Rower (FR55). Plik .iq → Connect IQ Store (beta), .prg → GARMIN/APPS."
+            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater = Łyżwy, rolki = Rolki (FR245M), rower-moc = pole mocy do aktywności Rower (FR55), mapa = podgląd mapy (FR245M). Plik .iq → Connect IQ Store (beta), .prg → GARMIN/APPS."

@@ -1,0 +1,8 @@
+<settings>
+    <setting propertyKey="@Properties.apiKey" title="@Strings.SettingKey">
+        <settingConfig type="alphaNumeric"/>
+    </setting>
+    <setting propertyKey="@Properties.style" title="@Strings.SettingStyle">
+        <settingConfig type="alphaNumeric"/>
+    </setting>
+</settings>

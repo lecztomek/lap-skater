@@ -1,0 +1,4 @@
+<properties>
+    <property id="apiKey" type="string"></property>
+    <property id="style" type="string">osm-bright</property>
+</properties>

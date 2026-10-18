@@ -1,0 +1,10 @@
+<strings>
+    <string id="AppName">Mapa</string>
+    <string id="AppVersion">v1.0.0</string>
+    <string id="NoKey">Ustaw klucz Geoapify w Connect IQ (telefon)</string>
+    <string id="WaitGps">Szukam GPS…</string>
+    <string id="Loading">Ładuję mapę…</string>
+    <string id="NoPhone">Brak telefonu / internetu</string>
+    <string id="SettingKey">Klucz API Geoapify</string>
+    <string id="SettingStyle">Styl mapy</string>
+</strings>

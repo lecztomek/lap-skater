@@ -3,6 +3,8 @@
 Dwie aplikacje z jednej rodziny na Forerunner 245 Music:
 - **Łyżwy** (katalog główny) – kryte lodowisko, okrążenia z kompasu, bez GPS.
 - **Rolki** (`rolki/`) – jazda na rolkach z GPS: dystans, prędkość, trasa; automatyczne okrążenie co 1 km.
+- **Mapa** (`mapa/`, Forerunner 245 Music) – podgląd mapy bez nagrywania: mapa obrócona wg kierunku
+  jazdy, pozycja i przejechany ślad (obrazy z Geoapify przez telefon).
 - **Rower Moc** (`rower/`, Forerunner 55) – pole danych do wbudowanej aktywności Rower: moc i kadencja
   z e-bike'a Fazua Ride 60 (ANT+ moc), zapisywane w treningu.
 
@@ -107,3 +109,20 @@ Ustawienie:
    Stravy natywnie.
 2. Aktywność **Rower** → ustawienia aktywności → Ekrany danych → wybierz pole → Connect IQ → **Rower Moc**.
 3. Jedź: pole pokazuje waty, gdy rower jest włączony i w pobliżu.
+
+# Mapa (Forerunner 245 Music)
+
+Podgląd mapy w czasie jazdy – bez nagrywania (trening nagrywa licznik). Forerunner 245 nie ma map
+ani nie umie obracać obrazków, więc mapę obraca serwis: aplikacja prosi **Geoapify Static Maps**
+(przez telefon i Garmin Connect) o obraz 240×240 wyśrodkowany na pozycji, obrócony wg kierunku jazdy
+(parametr `bearing`), z przejechanym śladem narysowanym przez serwer (zawsze zgodny z mapą).
+
+- Kierunek: w ruchu (> 5 km/h) z GPS, na postoju z kompasu; zaokrąglany do 15°.
+- Nowy obraz po ~40 m albo obrocie ≥ 15°, nie częściej niż co 4 s (i co najmniej raz na minutę).
+- **UP/DOWN**: przybliż / oddal (zoom 12–18), **START**: mapa wg kierunku jazdy ↔ północ u góry,
+  **BACK**: wyjście.
+- Wymaga telefonu z internetem; ostatni obraz zostaje na ekranie, gdy brak zasięgu.
+
+Ustawienie: darmowe konto na geoapify.com → klucz API → Connect IQ na telefonie → Mapa → Ustawienia →
+„Klucz API Geoapify”. (Klucz nie jest wbudowany w aplikację – pliki w repozytorium są publiczne.)
+Testy: `mapa/source/MapaTest.mc` (źródło kierunku, zaokrąglanie, kiedy pobrać obraz, ślad, parametry).
