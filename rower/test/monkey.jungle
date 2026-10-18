@@ -1,0 +1,4 @@
+project.manifest = manifest.xml
+# ten sam PowerStats co w polu danych + testy
+base.sourcePath = source;../source/PowerStats.mc
+base.resourcePath = resources

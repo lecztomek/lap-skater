@@ -31,11 +31,13 @@ jobs:
           - app: rower-moc    # pole danych mocy do aktywności Rower (Fazua Ride 60)
             dir: rower
             device: fr55
-            # symulator fr55 (SDK 9.2) wysypuje się przy starcie – logikę testujemy na fr245m
+            # symulator wysypuje się na polu danych z ANT+ – logikę mocy testuje osobny projekt rower/test
             test_device: fr245m
+            test_dir: test
     env:
       DEVICE: ${{ matrix.device }}
       TEST_DEVICE: ${{ matrix.test_device }}
+      TEST_DIR: ${{ matrix.test_dir || '.' }}
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
@@ -117,7 +119,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb libusb-1.0-0 libsecret-1-0 libwebkit2gtk-4.0-37 libjpeg-turbo8 libsm6 > /dev/null
           mkdir -p out
-          monkeyc -f monkey.jungle -d "$TEST_DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
+          monkeyc -f "$TEST_DIR/monkey.jungle" -d "$TEST_DEVICE" -y developer_key.der -o out/test.prg --unit-test -w
           # symulator potrzebuje ekranu – wirtualny (xvfb)
           xvfb-run -a bash -c '
             connectiq &

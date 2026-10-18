@@ -2,10 +2,9 @@
 <iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
     <!-- Pole danych do wbudowanej aktywności Rower: moc i kadencja z Fazua Ride 60 (ANT+ moc) -->
     <iq:application id="d755633cc67d4253a475d505dd81d40b" type="datafield" name="@Strings.AppName" entry="RowerApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.2.0" version="1.0.0">
-        <!-- Forerunner 55; fr245m tylko do testów w CI (symulator fr55 się wysypuje) -->
+        <!-- Forerunner 55 -->
         <iq:products>
             <iq:product id="fr55"/>
-            <iq:product id="fr245m"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="Ant"/>

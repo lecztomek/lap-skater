@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <!-- Tylko do testów w CI: logika PowerStats bez pola danych z ANT+ (to wysypuje symulator) -->
+    <iq:application id="5c0e8a3fb2d94e6f9a1c7d2e4b6a8f10" type="watch-app" name="@Strings.AppName" entry="RowerTestApp" minApiLevel="3.2.0" version="1.0.0">
+        <iq:products>
+            <iq:product id="fr245m"/>
+        </iq:products>
+        <iq:permissions/>
+        <iq:languages>
+            <iq:language>pol</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>
