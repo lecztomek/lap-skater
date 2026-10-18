@@ -3,6 +3,8 @@
 Dwie aplikacje z jednej rodziny na Forerunner 245 Music:
 - **Łyżwy** (katalog główny) – kryte lodowisko, okrążenia z kompasu, bez GPS.
 - **Rolki** (`rolki/`) – jazda na rolkach z GPS: dystans, prędkość, trasa; automatyczne okrążenie co 1 km.
+- **Rower Moc** (`rower/`, Forerunner 55) – pole danych do wbudowanej aktywności Rower: moc i kadencja
+  z e-bike'a Fazua Ride 60 (ANT+ moc), zapisywane w treningu.
 
 # Łyżwy
 
@@ -90,3 +92,18 @@ więc w Garmin Connect są w zwykłych polach i na mapie.
   średnia i maks. prędkość, dystans bieżącego kilometra.
 - **Okrążenie co 1 km** automatycznie (po cichu) – międzyczasy w Garmin Connect. **BACK**: ręczne okrążenie.
 - Testy: `rolki/source/RolkiTest.mc` (okrążenia co 1 km, test dymny sesji z GPS).
+
+# Rower Moc (Forerunner 55, Fazua Ride 60)
+
+Forerunner 55 nie obsługuje mierników mocy. To pole danych łączy się z rowerem jak z miernikiem mocy
+ANT+ (Fazua Ride 60 nadaje moc rowerzysty i kadencję od firmware bundle 007), pokazuje moc (średnia
+z 3 s) i zapisuje w treningu: moc i kadencję co sekundę oraz średnią i maks. moc w podsumowaniu.
+Pola mają numery standardowych pól FIT (nativeNum), żeby Strava mogła je czytać jak zwykłą moc –
+**czy Strava je pokaże, trzeba sprawdzić na pierwszej jeździe** (fora deweloperów Garmina podają
+sprzeczne informacje). W Garmin Connect moc jest widoczna jako wykres z pola Connect IQ.
+
+Ustawienie:
+1. Zegarek: Ustawienia → Czujniki i akcesoria → Dodaj → **Kadencja** (kręć korbą) – kadencja trafi do
+   Stravy natywnie.
+2. Aktywność **Rower** → ustawienia aktywności → Ekrany danych → wybierz pole → Connect IQ → **Rower Moc**.
+3. Jedź: pole pokazuje waty, gdy rower jest włączony i w pobliżu.

@@ -11,7 +11,6 @@ permissions:
 env:
   CLI_VERSION: 0.8.4
   SDK_CONSTRAINT: ">=7.0.0"
-  DEVICE: fr245m
 
 jobs:
   build:
@@ -23,8 +22,15 @@ jobs:
         include:
           - app: lap-skater   # Łyżwy (katalog główny)
             dir: .
+            device: fr245m
           - app: rolki        # Rolki
             dir: rolki
+            device: fr245m
+          - app: rower-moc    # pole danych mocy do aktywności Rower (Fazua Ride 60)
+            dir: rower
+            device: fr55
+    env:
+      DEVICE: ${{ matrix.device }}
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
@@ -60,8 +66,8 @@ jobs:
           path: |
             ~/.Garmin/ConnectIQ/Sdks
             ~/.Garmin/ConnectIQ/Devices
-          key: ciq-${{ env.DEVICE }}-${{ matrix.app }}-${{ github.run_id }}
-          restore-keys: ciq-${{ env.DEVICE }}-
+          key: ciq-${{ matrix.device }}-${{ matrix.app }}-${{ github.run_id }}
+          restore-keys: ciq-${{ matrix.device }}-
 
       - name: Download SDK and device
         env:
@@ -160,4 +166,4 @@ jobs:
           gh release delete latest-build --yes --cleanup-tag || true
           gh release create latest-build $(find dist -name '*.iq' -o -name '*.prg') \
             --title "Najnowszy build" --prerelease --target "$GITHUB_SHA" \
-            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater = Łyżwy, rolki = Rolki. Plik .iq → Connect IQ Store (beta), .prg → GARMIN/APPS."
+            --notes "Build z commita ${GITHUB_SHA::7}. lap-skater = Łyżwy, rolki = Rolki (FR245M), rower-moc = pole mocy do aktywności Rower (FR55). Plik .iq → Connect IQ Store (beta), .prg → GARMIN/APPS."

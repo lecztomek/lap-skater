@@ -1,0 +1,10 @@
+<strings>
+    <string id="AppName">Rower Moc</string>
+    <string id="Label">MOC W</string>
+    <string id="FitPower">Moc</string>
+    <string id="FitCadence">Kadencja</string>
+    <string id="FitAvgPower">Śr. moc</string>
+    <string id="FitMaxPower">Maks. moc</string>
+    <string id="UnitW">W</string>
+    <string id="UnitRpm">obr/min</string>
+</strings>
