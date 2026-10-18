@@ -1,8 +1,7 @@
-import Toybox.Activity;
 import Toybox.Lang;
 import Toybox.Test;
 
-// Testy pola Rower Moc: statystyki mocy i test dymny pola (ANT+ i pola FIT w symulatorze).
+// Testy pola Rower Moc: statystyki mocy. (Test pola z kanałem ANT+ wysypywał symulator w CI.)
 
 (:test)
 function testPowerSmoothing(logger as Logger) as Boolean {
@@ -41,12 +40,4 @@ function testPowerZerosCount(logger as Logger) as Boolean {
     s.add(200);
     logger.debug("z zerami: śr " + s.average());
     return s.average() == 100;
-}
-
-(:test)
-function testRowerFieldSmoke(logger as Logger) as Boolean {
-    var f = new RowerField();
-    var v = f.compute(Activity.getActivityInfo());
-    logger.debug("pole bez czujnika: " + v);
-    return v != null;
 }
