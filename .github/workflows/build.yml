@@ -98,6 +98,8 @@ jobs:
           connect-iq-sdk-manager login
           connect-iq-sdk-manager sdk set "$SDK_CONSTRAINT"
           connect-iq-sdk-manager device download --manifest=manifest.xml --include-fonts
+          # urządzenie do testów (może być inne niż docelowe)
+          connect-iq-sdk-manager device download --device="$TEST_DEVICE" --include-fonts
           echo "$(connect-iq-sdk-manager sdk current-path --bin)" >> "$GITHUB_PATH"
 
       - name: Developer key
