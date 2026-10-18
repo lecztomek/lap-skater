@@ -1,5 +1,6 @@
 import Toybox.Application;
 import Toybox.Communications;
+import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Position;
 import Toybox.Sensor;
@@ -127,7 +128,7 @@ class MapaController {
 
     private var _requestBearing as Number = 0;
 
-    function onImage(code as Number, data) as Void {
+    function onImage(code as Number, data as WatchUi.BitmapResource or Graphics.BitmapReference or Null) as Void {
         _pending = false;
         if (code == 200 && data != null) {
             bitmap = data;
